@@ -6,7 +6,7 @@ const database = require('../database')
 
 let userRouter = () => {
 	let router = express.Router()
-	let db = new database("db-data.json")
+	let db = new database('db/db-data.json')
 
 	router.get("/", (req, res, next) =>
 	{
@@ -17,7 +17,7 @@ let userRouter = () => {
 		let usr = db.get(req.user, {})
 		if (usr)
 		{
-			usr.password = crypto.createHash("sha1").update(req.body.password).digest("hex")
+			usr.password = crypto.createHash('sha1').update(req.body.password).digest('hex')
 			db.set(req.user, usr)
 			res.json({})
 		}

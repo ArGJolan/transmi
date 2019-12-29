@@ -8,6 +8,8 @@
   },
   "scripts": {
     "start": "node src/app.js",
+    "fix-db": "node src/script/fix-db.js",
+    "add-user": "./src/script/add-user.sh",
     "build-web": "svelte compile --format iife -i src/web/components -o src/web/public/components"
   },
   "author": "Zajda Florent & Maigret Aurélien",

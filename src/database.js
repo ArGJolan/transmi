@@ -2,57 +2,66 @@ const fs = require('fs')
 const path = require('path')
 
 class Database {
-    constructor(filename) {
-        this.filename = path.join(__dirname, filename)
-        try {
-            this.db = require(this.filename)
-        } catch(e) {
-            console.log(e)
-            this.db = {}
-        }
-    }
+  constructor(filename) {
+    this.filename = path.join(__dirname, filename)
+    this.loadfile()
+    fs.watchFile(this.filename, () => {
+      console.log(`${this.filename} file changed, reloading config...`);
+      this.loadfile()
+    });
+  }
 
-    has (key) {
-        return this.db[key] !== undefined
+  loadfile () {
+    try {
+      this.db = JSON.parse(fs.readFileSync(this.filename))
+    } catch(e) {
+      console.log(e)
+      this.db = {}
     }
+    console.log(`Loaded config from ${this.filename}`, JSON.stringify(this.db, null, 2))
+  }
 
-    all () {
-        return this.db
-    }
+  has (key) {
+    return this.db[key] !== undefined
+  }
 
-    keys () {
-        return Object.keys(this.db)
-    }
+  all () {
+    return this.db
+  }
 
-    get (key, defaultValue) {
-        if (key) {
-            if (this.has(key)) {
-                return this.db[key]
-            }
-            return defaultValue
-        }
-        return this.db
-    }
+  keys () {
+    return Object.keys(this.db)
+  }
 
-    set (key, value) {
-        this.db[key] = value
-        this._save()
+  get (key, defaultValue) {
+    if (key) {
+      if (this.has(key)) {
+        return this.db[key]
+      }
+      return defaultValue
     }
+    return this.db
+  }
 
-    remove (key) {
-        if (this.has(key)) {
-            delete this.db[key]
-            this._save()
-        }
-    }
+  set (key, value) {
+    this.db[key] = value
+    this._save()
+  }
 
-    _save () {
-        fs.writeFile(this.filename, JSON.stringify(this.db), 'utf8', (err) => {
-            if (err) {
-                console.error('[database.save] error', err.stack)
-            }
-        })
+  remove (key) {
+    if (this.has(key)) {
+      delete this.db[key]
+      this._save()
     }
+  }
+
+  _save () {
+    fs.writeFile(this.filename, JSON.stringify(this.db, null, 2), 'utf8', (err) => {
+      if (err) {
+        console.error('[database.save] error', err.stack)
+      }
+    })
+  }
 }
 
 module.exports = Database

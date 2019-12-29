@@ -1,7 +1,7 @@
 module.exports = {
     transmission_options: {
         port: 9091,
-        host: '127.0.0.1',
+        host: 'transmi-transmission',
         username: 'transmission',
         password: 'sidbox'
     },

@@ -2,3 +2,4 @@ node_modules/
 npm-debug.log
 src/web/public/components/
 db-data.json
+package-lock.json

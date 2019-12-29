@@ -6,7 +6,7 @@ const database = require('../database')
 
 let authRouter = () => {
 	let router = express.Router()
-	let db = new database("db-data.json")
+	let db = new database("db/db-data.json")
 
 	router.post("/", (req, res, next) =>
 	{

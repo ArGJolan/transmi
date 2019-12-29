@@ -1,11 +1,11 @@
 // After Transmission is restarted, all the IDs are reset
 // Run this script with the current DB file and a valid API key to fix the IDs
 
-// node fix-db.js ./src/db-data.json "https://transmi.xxxxxxxxxx.com" "xxxXXXxXXxXXxXXXxxXX-API-KEY" > ./src/db-data.json
+// node fix-db.js ./src/db/db-data.json "https://transmi.xxxxxxxxxx.com" "xxxXXXxXXxXXxXXXxxXX-API-KEY" > ./src/db/db-data.json
 // systemctl restart transmi
 
 if (process.argv.length !== 5) {
-  console.log('Usage: node fix-db.js ./src/db-data.json "https://transmi.xxxxxxxxxx.com" "xxxXXXxXXxXXxXXXxxXX-API-KEY" > ./src/db-data.json')
+  console.log('Usage: node fix-db.js ./src/db/db-data.json "https://transmi.xxxxxxxxxx.com" "xxxXXXxXXxXXxXXXxxXX-API-KEY" > ./src/db/db-data.json')
   process.exit(1)
 }
 

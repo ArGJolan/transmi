@@ -45,6 +45,6 @@ app.use((err, req, res, next) => {
 	console.error(err.stack)
 })
 
-app.listen(7897, '127.0.0.1', () => {
+app.listen(7897, '0.0.0.0', () => {
 	console.info("[web-component]", "server running on port", 7897)
 })

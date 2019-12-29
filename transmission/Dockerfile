@@ -9,6 +9,7 @@ RUN add-apt-repository -y ppa:transmissionbt/ppa && \
     apt-get install -y transmission-daemon
 
 RUN mkdir -p /transmission/incomplete && \
+    mkdir -p /transmission/downloads && \
     mkdir /etc/transmission
 
 ADD settings.json /etc/transmission/settings.json
@@ -18,9 +19,9 @@ EXPOSE 9091
 
 VOLUME ["/transmission/downloads"]
 
-RUN chown -R daemon /transmission && \
-    chown -R daemon /etc/transmission
+RUN chown -R root /transmission && \
+    chown -R root /etc/transmission
 
-USER daemon
+USER root
 
 CMD ["/usr/bin/transmission-daemon", "-f", "--no-portmap", "--config-dir", "/etc/transmission", "--log-info"]
