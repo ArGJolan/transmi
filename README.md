@@ -4,28 +4,83 @@ A web interface to manage torrents. Can be used by multiple users. To each user 
 
 Uses [node-transmission](https://github.com/FLYBYME/node-transmission) and [svelte](https://svelte.technology/).
 
-## Lazy install
-
-Should work on Ubuntu/Debian and equivalents
-```bash
-git clone git@github.com:zajdaf/Transmi.git
-cd Transmi
-chmod +x ./install.sh && ./install.sh
-```
-
 ## Requirements/installation
 
-- Node 7.x + npm
-- `npm install`
-- Transmission instance ([see `transmission` directory](./transmission/))
-- Create an initial `src/db-data.json` file: `{"stego":{"password":"79be0712ecb676e668d4a729141e28cef73ef2a3"}}` (password: SHA-1 hash)
-- `npm run build-web` to compile `html` files into `javascript` files
+- Docker
+- nginx
+- certbot
 
-## Start server
+## Docker setup
 
-- By default, the server is listening on `127.0.0.1:7897`: you can edit it at the end of the file [app.js](./src/app.js)
-- Run `npm start` to start the server, or create the service `transmi` ([transmi.service](./transmi.service) into `/etc/systemd/system/transmi.service`)
-- You also can use the Nginx example configuration file ((nginx.conf)[./nginx.conf]) in order to use a domain name (with SSL or not)
+```shell
+# Build transmission
+cd transmission
+docker build -t transmission .
+
+# Build transmi
+cd ..
+docker build -t transmi .
+
+# A network to rule them all
+docker network create transmi
+
+# Transmission
+docker volume create transmission-downloads
+docker run -d \
+  --name transmi-transmission \
+  --network transmi \
+  -v transmission-downloads:/transmission/downloads \
+  transmission
+
+# Nginx
+docker run -d \
+  --name transmi-nginx \
+  -v transmission-downloads:/usr/share/nginx/html/download:ro \
+  -p 7898:80 \
+  nginx
+
+# Transmi
+docker volume create transmi-database
+docker run -d \
+  --name transmi-web \
+  --network transmi \
+  -v transmi-database:/opt/app/src/db \
+  -p 7897:7897 \
+  transmi
+
+# Add a new user
+docker run -it \
+  --rm \
+  --network transmi \
+  -v transmi-database:/opt/app/src/db \
+  transmi \
+  npm run add-user
+```
+
+## nginx setup
+
+Create a transmi.conf file in /etc/nginx/sites-available with this content :
+```conf
+server {
+  listen 443 ssl;
+  listen [::]:443 ssl;
+
+  server_name transmi.your-domain.ltd;
+
+  location / {
+    proxy_pass http://localhost:7897;
+  }
+
+  location /download {
+    proxy_pass http://localhost:7898;
+  }
+}
+```
+
+Run certbot and select your transmi host
+```shell
+certbot --nginx
+```
 
 ## Authors
 
