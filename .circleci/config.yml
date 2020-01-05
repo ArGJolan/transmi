@@ -48,3 +48,13 @@ jobs:
             docker push $COMMIT_TAG
             docker push $BRANCH_TAG
 
+workflows:
+  version: 2
+  gcr:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
+                - develop

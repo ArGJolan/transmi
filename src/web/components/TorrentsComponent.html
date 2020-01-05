@@ -25,40 +25,40 @@
 
 <script>
     export default {
-        onrender () {
-            this.interval = setInterval(function () {
-                window.app.api.get('/torrents').then(function (response) {
-                    for (var i = 0; i < response.data.length; i++) {
-                        response.data[i].percentDone = Math.round(response.data[i].percentDone * 100) / 100
-                    }
-                    this.set({ loaded: true, torrents: response.data })
-                }.bind(this)).catch(function (error) {
-                    console.error(error)
-                })
-            }.bind(this), 1000)
-        },
-        onteardown () {
-            clearInterval(this.interval)
-        },
-        data () {
-            return {
-                loaded: false,
-                torrents: []
+      onrender () {
+        this.interval = setInterval(function () {
+          window.app.api.get('/torrents').then(function (response) {
+            for (var i = 0; i < response.data.length; i++) {
+              response.data[i].percentDone = Math.round(response.data[i].percentDone * 100) / 100
             }
-        },
-        helpers: {
-            formatStatus: window.GenericHelpers.formatTorrentStatus,
-            formatSize: window.GenericHelpers.formatSize,
-            formatDuration: window.GenericHelpers.formatDuration
-        },
-        components: {
-            HeaderComponent,
-            LoadingComponent
-        },
-        methods: {
-            openTorrent: function (torrentId) {
-                window.app.router.go('torrent', { torrentId: torrentId })
-            }
+            this.set({ loaded: true, torrents: response.data })
+          }.bind(this)).catch(function (error) {
+            console.error(error)
+          })
+        }.bind(this), 1000)
+      },
+      onteardown () {
+        clearInterval(this.interval)
+      },
+      data () {
+        return {
+          loaded: false,
+          torrents: []
         }
+      },
+      helpers: {
+        formatStatus: window.GenericHelpers.formatTorrentStatus,
+        formatSize: window.GenericHelpers.formatSize,
+        formatDuration: window.GenericHelpers.formatDuration
+      },
+      components: {
+        HeaderComponent,
+        LoadingComponent
+      },
+      methods: {
+        openTorrent: function (torrentId) {
+          window.app.router.go('torrent', { torrentId: torrentId })
+        }
+      }
     }
 </script>

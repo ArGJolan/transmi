@@ -2,19 +2,19 @@ const fs = require('fs')
 const path = require('path')
 
 class Database {
-  constructor(filename) {
+  constructor (filename) {
     this.filename = path.join(__dirname, filename)
     this.loadfile()
     fs.watchFile(this.filename, () => {
-      console.log(`${this.filename} file changed, reloading config...`);
+      console.log(`${this.filename} file changed, reloading config...`)
       this.loadfile()
-    });
+    })
   }
 
   loadfile () {
     try {
       this.db = JSON.parse(fs.readFileSync(this.filename))
-    } catch(e) {
+    } catch (e) {
       console.log(e)
       this.db = {}
     }

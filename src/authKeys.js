@@ -1,16 +1,16 @@
-let keys = {}
+const keys = {}
 
 module.exports.set = (apiKey, name) => {
-    keys[apiKey] = name
+  keys[apiKey] = name
 /*    setTimeout(() => {
         delete keys[apiKey]
-    }, 1000 * 60 * 60)*/
+    }, 1000 * 60 * 60) */
 }
 
 module.exports.get = (apiKey) => {
-    return keys[apiKey] || null
+  return keys[apiKey] || null
 }
 
 module.exports.del = (apiKey) => {
-	delete keys[apiKey]
+  delete keys[apiKey]
 }

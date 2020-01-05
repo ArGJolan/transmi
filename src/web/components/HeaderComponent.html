@@ -23,57 +23,57 @@
 
 <script>
     export default {
-        onrender () {
-            this.updateStats()
-            this.getT411Profile()
-            this.interval = setInterval(this.updateStats.bind(this), 10000)
-        },
-        onteardown () {
-            clearInterval(this.interval)
-        },
-        data () {
-            return {
-                all_download: 0,
-                all_upload: 0,
-                you_download: 0,
-                you_upload: 0,
-                t411_profile: null,
-            }
-        },
-        helpers: {
-            formatSize: window.GenericHelpers.formatSize
-        },
-        methods: {
-            router: function (location) {
-                window.app.router.go(location)
-            },
-            updateStats: function () {
-                window.app.api.get('/torrents/stats').then(function (response) {
-                    this.set({
-                        all_download: response.data.all.download,
-                        all_upload: response.data.all.upload,
-                        you_download: response.data.you.download,
-                        you_upload: response.data.you.upload
-                    })
-                }.bind(this)).catch(function (error) {
-                    console.error(error)
-                })
-            },
-            getT411Profile: function () {
-                window.app.api.get('/t411/profile').then(function (response) {
-                    this.set({ t411_profile: response.data })
-                }.bind(this)).catch(function (error) {
-                    console.log(error)
-                }.bind(this))
-            },
-            updateT411Profile: function () {
-                window.app.api.get('/t411/profile/refresh').then(function (response) {
-                    this.set({ t411_profile: response.data })
-                }.bind(this)).catch(function (error) {
-                    this.set({ t411_profile: null })
-                    console.log(error)
-                }.bind(this))
-            }
+      onrender () {
+        this.updateStats()
+        this.getT411Profile()
+        this.interval = setInterval(this.updateStats.bind(this), 10000)
+      },
+      onteardown () {
+        clearInterval(this.interval)
+      },
+      data () {
+        return {
+          all_download: 0,
+          all_upload: 0,
+          you_download: 0,
+          you_upload: 0,
+          t411_profile: null
         }
+      },
+      helpers: {
+        formatSize: window.GenericHelpers.formatSize
+      },
+      methods: {
+        router: function (location) {
+          window.app.router.go(location)
+        },
+        updateStats: function () {
+          window.app.api.get('/torrents/stats').then(function (response) {
+            this.set({
+              all_download: response.data.all.download,
+              all_upload: response.data.all.upload,
+              you_download: response.data.you.download,
+              you_upload: response.data.you.upload
+            })
+          }.bind(this)).catch(function (error) {
+            console.error(error)
+          })
+        },
+        getT411Profile: function () {
+          window.app.api.get('/t411/profile').then(function (response) {
+            this.set({ t411_profile: response.data })
+          }.bind(this)).catch(function (error) {
+            console.log(error)
+          })
+        },
+        updateT411Profile: function () {
+          window.app.api.get('/t411/profile/refresh').then(function (response) {
+            this.set({ t411_profile: response.data })
+          }.bind(this)).catch(function (error) {
+            this.set({ t411_profile: null })
+            console.log(error)
+          }.bind(this))
+        }
+      }
     }
 </script>

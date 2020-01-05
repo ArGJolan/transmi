@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node src/app.js",
+    "lint": "eslint .",
     "fix-db": "node src/script/fix-db.js",
     "add-user": "./src/script/add-user.sh",
     "build-web": "svelte compile --format iife -i src/web/components -o src/web/public/components"
@@ -20,10 +21,23 @@
   "homepage": "https://github.com/zajdaf/Torrent-web-interface#readme",
   "dependencies": {
     "body-parser": "^1.16.0",
+    "cookie-parser": "^1.4.4",
     "express": "^4.14.0",
+    "jsonwebtoken": "^8.5.1",
     "opensubtitles-api": "^4.0.0-rc1",
     "request": "^2.79.0",
+    "request-promise": "^4.2.5",
     "svelte-cli": "^1.3.0",
     "transmission": "^0.4.8"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "babel-eslint": "^10.0.3",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-html": "^6.0.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
   }
 }

@@ -83,193 +83,193 @@
 
 <script>
     export default {
-        onrender () {
-            new Tablesort(document.getElementById('trackers-table'))
-        },
-        data () {
-            return {
-                errorFile: null,
-                errorUrl: null,
-                url: "",
-                errorTrackers: null,
-                queryTrackers: "",
-                trackersResults: [],
-                searchingTorrent: false,
-            }
-        },
-        helpers: {
-            formatSize: window.GenericHelpers.formatSize,
-            formattedTimeSinceDate: function(date) {
-                var seconds = Math.floor((new Date() - Date.parse(date)) / 1000);
-                var interval = Math.floor(seconds / 31536000);
-                if (interval > 1) {
-                    return interval + " years";
-                }
-                interval = Math.floor(seconds / 2592000);
-                if (interval > 1) {
-                    return interval + " months";
-                }
-                interval = Math.floor(seconds / 86400);
-                if (interval > 1) {
-                    return interval + " days";
-                }
-                interval = Math.floor(seconds / 3600);
-                if (interval > 1) {
-                    return interval + " hours";
-                }
-                interval = Math.floor(seconds / 60);
-                if (interval > 1) {
-                    return interval + " minutes";
-                }
-                return Math.floor(seconds) + " seconds";
-            }
-        },
-        components: {
-            HeaderComponent
-        },
-        events: {
-            keyEnter (node, callback) {
-                var self = this
-                function onkeyup(e) {
-                    if (e.which === 13 || e.keyCode === 13) {
-                        callback(e)
-                    }
-                }
-                node.addEventListener('keyup', onkeyup, false)
-                return {
-                    teardown () {
-                        node.removeEventListener('keyup', onkeyup, false)
-                    }
-                }
-            }
-        },
-        methods: {
-            uploadFile: function (filePath) {
-                return new Promise(function (resolve) {
-                    var reader = new window.FileReader()
-                    reader.addEventListener("load", function () {
-                        resolve(reader.result.replace(/^(.*)base64,/, ""))
-                    }, false)
-                    reader.readAsDataURL(filePath)
-                }).then(function (base64) {
-                    return window.app.api.post('/torrents', { base64: base64 })
-                })
-            },
-            onChange: function (event) {
-                if (!event || !event.target || !event.target.files[0]) {
-                    return
-                }
-                this.uploadFile(event.target.files[0]).then(function (response) {
-                    console.log('res', response)
-                    window.app.router.go('torrents')
-                }).catch(function (error) {
-                    this.set({ errorFile: error })
-                }.bind(this))
-            },
-            addUrl: function (event) {
-                var url = this.get('url')
-                if (!url) {
-                    this.set({ errorUrl: 'You must provide an URL.' })
-                } else {
-                    window.app.api.post('/torrents', {
-                        url: url
-                    }).then(function (response) {
-                        window.app.router.go('torrents')
-                    }).catch(function (error) {
-                        this.set({ errorUrl: error })
-                    }.bind(this))
-                }
-            },
-            searchT411: function () {
-                this.set({ searchingTorrent: true })
-                window.app.api.post('/t411/search', {
-                    search: this.get('queryTrackers')
-                }).then(function (response) {
-                    var torrents = []
-                    for (var i = 0; i < response.data.length; i++) {
-                        torrents.push({
-                            category: response.data[i].categoryname,
-                            link: 'https://www.t411.ai/t/' + response.data[i].id,
-                            name: response.data[i].name,
-                            date: response.data[i].added,
-                            hoursSinceNow: Math.abs(Date.parse(response.data[i].added) - new Date()) / 3.6e6,
-                            size: response.data[i].size,
-                            seeders: response.data[i].seeders,
-                            leechers: response.data[i].leechers,
-                            download: this.downloadT411.bind(this, response.data[i].id)
-                        })
-                    }
-                    this.set({ searchingTorrent: false, trackersResults: torrents })
-                }.bind(this)).catch(function (error) {
-                    this.set({ searchingTorrent: false, errorTrackers: error })
-                    console.log(error)
-                }.bind(this))
-            },
-            downloadT411: function (torrentId) {
-                window.app.api.post('/t411/download/' + torrentId, {}).then(function (response) {
-                    return window.app.api.post('/torrents', { base64: response.data.base64 })
-                }).then(function (response) {
-                    window.app.router.go('torrents')
-                }.bind(this)).catch(function (error) {
-                    this.set({ errorTrackers: error })
-                }.bind(this))
-            },
-            searchRarbG: function () {
-                this.set({ searchingTorrent: true })
-                window.app.api.post('/rarbg/search', {
-                    search: this.get('queryTrackers')
-                }).then(function (response) {
-                    var torrents = []
-                    for (var i = 0; i < response.data.length; i++) {
-                        torrents.push({
-                            category: response.data[i].category,
-                            link: response.data[i].info_page,
-                            name: response.data[i].title,
-                            date: response.data[i].pubdate,
-                            hoursSinceNow: Math.abs(Date.parse(response.data[i].pubdate) - new Date()) / 3.6e6,
-                            size: response.data[i].size,
-                            seeders: response.data[i].seeders,
-                            leechers: response.data[i].leechers,
-                            download: this.downloadRarbg.bind(this, response.data[i].download)
-                        })
-                    }
-                    this.set({ searchingTorrent: false, trackersResults: torrents })
-                }.bind(this)).catch(function (error) {
-                    this.set({ searchingTorrent: false, errorTrackers: error })
-                    console.log(error)
-                }.bind(this))
-            },
-            downloadRarbg: function (magnet) {
-                this.set({ url: magnet })
-                this.addUrl()
-            },
-            searchOpenSubtitles: function () {
-                this.set({ searchingTorrent: true })
-                window.app.api.post('/opensubtitles/search', {
-                    search: this.get('queryTrackers')
-                }).then(function (response) {
-                    var torrents = []
-                    for (var i = 0; i < response.data.length; i++) {
-                        torrents.push({
-                            category: response.data[i].lang,
-                            link: response.data[i].url,
-                            name: response.data[i].filename,
-                            date: '',
-                            hoursSinceNow: 0,
-                            size: 0,
-                            seeders: +response.data[i].score,
-                            leechers: +response.data[i].downloads
-                        })
-                    }
-                    this.set({ searchingTorrent: false, trackersResults: torrents })
-                }.bind(this)).catch(function (error) {
-                    this.set({ searchingTorrent: false, errorTrackers: error })
-                    console.log(error)
-                }.bind(this))
-            },
-            downloadFromTracker: function (callbackDownload) {
-                callbackDownload()
-            }
+      onrender () {
+        new Tablesort(document.getElementById('trackers-table'))
+      },
+      data () {
+        return {
+          errorFile: null,
+          errorUrl: null,
+          url: '',
+          errorTrackers: null,
+          queryTrackers: '',
+          trackersResults: [],
+          searchingTorrent: false
         }
+      },
+      helpers: {
+        formatSize: window.GenericHelpers.formatSize,
+        formattedTimeSinceDate: function (date) {
+          var seconds = Math.floor((new Date() - Date.parse(date)) / 1000)
+          var interval = Math.floor(seconds / 31536000)
+          if (interval > 1) {
+            return interval + ' years'
+          }
+          interval = Math.floor(seconds / 2592000)
+          if (interval > 1) {
+            return interval + ' months'
+          }
+          interval = Math.floor(seconds / 86400)
+          if (interval > 1) {
+            return interval + ' days'
+          }
+          interval = Math.floor(seconds / 3600)
+          if (interval > 1) {
+            return interval + ' hours'
+          }
+          interval = Math.floor(seconds / 60)
+          if (interval > 1) {
+            return interval + ' minutes'
+          }
+          return Math.floor(seconds) + ' seconds'
+    }
+      },
+      components: {
+        HeaderComponent
+      },
+      events: {
+        keyEnter (node, callback) {
+          var self = this
+          function onkeyup (e) {
+            if (e.which === 13 || e.keyCode === 13) {
+              callback(e)
+            }
+          }
+          node.addEventListener('keyup', onkeyup, false)
+          return {
+            teardown () {
+              node.removeEventListener('keyup', onkeyup, false)
+            }
+          }
+        }
+      },
+      methods: {
+        uploadFile: function (filePath) {
+          return new Promise(function (resolve) {
+            var reader = new window.FileReader()
+            reader.addEventListener('load', function () {
+              resolve(reader.result.replace(/^(.*)base64,/, ''))
+            }, false)
+            reader.readAsDataURL(filePath)
+          }).then(function (base64) {
+            return window.app.api.post('/torrents', { base64: base64 })
+          })
+        },
+        onChange: function (event) {
+          if (!event || !event.target || !event.target.files[0]) {
+            return
+          }
+          this.uploadFile(event.target.files[0]).then(function (response) {
+            console.log('res', response)
+            window.app.router.go('torrents')
+          }).catch(function (error) {
+            this.set({ errorFile: error })
+          }.bind(this))
+        },
+        addUrl: function (event) {
+          var url = this.get('url')
+          if (!url) {
+            this.set({ errorUrl: 'You must provide an URL.' })
+          } else {
+            window.app.api.post('/torrents', {
+              url: url
+            }).then(function (response) {
+              window.app.router.go('torrents')
+            }).catch(function (error) {
+              this.set({ errorUrl: error })
+            }.bind(this))
+          }
+        },
+        searchT411: function () {
+          this.set({ searchingTorrent: true })
+          window.app.api.post('/t411/search', {
+            search: this.get('queryTrackers')
+          }).then(function (response) {
+            var torrents = []
+            for (var i = 0; i < response.data.length; i++) {
+              torrents.push({
+                category: response.data[i].categoryname,
+                link: 'https://www.t411.ai/t/' + response.data[i].id,
+                name: response.data[i].name,
+                date: response.data[i].added,
+                hoursSinceNow: Math.abs(Date.parse(response.data[i].added) - new Date()) / 3.6e6,
+                size: response.data[i].size,
+                seeders: response.data[i].seeders,
+                leechers: response.data[i].leechers,
+                download: this.downloadT411.bind(this, response.data[i].id)
+              })
+            }
+            this.set({ searchingTorrent: false, trackersResults: torrents })
+          }.bind(this)).catch(function (error) {
+            this.set({ searchingTorrent: false, errorTrackers: error })
+            console.log(error)
+          }.bind(this))
+        },
+        downloadT411: function (torrentId) {
+          window.app.api.post('/t411/download/' + torrentId, {}).then(function (response) {
+            return window.app.api.post('/torrents', { base64: response.data.base64 })
+          }).then(function (response) {
+            window.app.router.go('torrents')
+          }).catch(function (error) {
+            this.set({ errorTrackers: error })
+          }.bind(this))
+        },
+        searchRarbG: function () {
+          this.set({ searchingTorrent: true })
+          window.app.api.post('/rarbg/search', {
+            search: this.get('queryTrackers')
+          }).then(function (response) {
+            var torrents = []
+            for (var i = 0; i < response.data.length; i++) {
+              torrents.push({
+                category: response.data[i].category,
+                link: response.data[i].info_page,
+                name: response.data[i].title,
+                date: response.data[i].pubdate,
+                hoursSinceNow: Math.abs(Date.parse(response.data[i].pubdate) - new Date()) / 3.6e6,
+                size: response.data[i].size,
+                seeders: response.data[i].seeders,
+                leechers: response.data[i].leechers,
+                download: this.downloadRarbg.bind(this, response.data[i].download)
+              })
+            }
+            this.set({ searchingTorrent: false, trackersResults: torrents })
+          }.bind(this)).catch(function (error) {
+            this.set({ searchingTorrent: false, errorTrackers: error })
+            console.log(error)
+          }.bind(this))
+        },
+        downloadRarbg: function (magnet) {
+          this.set({ url: magnet })
+          this.addUrl()
+        },
+        searchOpenSubtitles: function () {
+          this.set({ searchingTorrent: true })
+          window.app.api.post('/opensubtitles/search', {
+            search: this.get('queryTrackers')
+          }).then(function (response) {
+            var torrents = []
+            for (var i = 0; i < response.data.length; i++) {
+              torrents.push({
+                category: response.data[i].lang,
+                link: response.data[i].url,
+                name: response.data[i].filename,
+                date: '',
+                hoursSinceNow: 0,
+                size: 0,
+                seeders: +response.data[i].score,
+                leechers: +response.data[i].downloads
+              })
+            }
+            this.set({ searchingTorrent: false, trackersResults: torrents })
+          }.bind(this)).catch(function (error) {
+            this.set({ searchingTorrent: false, errorTrackers: error })
+            console.log(error)
+          }.bind(this))
+        },
+        downloadFromTracker: function (callbackDownload) {
+          callbackDownload()
+        }
+      }
     }
 </script>

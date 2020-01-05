@@ -1,6 +1,6 @@
 <header class="body">
     <h1>transmi</h1>
-    <h2>Authentification required</h2>
+    <h2>Authentication required</h2>
 </header>
 
 <section class="auth">
@@ -16,37 +16,43 @@
 
 <script>
     export default {
-        onrender () {
-            if (app.api.isConnected()) {
-                window.app.router.go('torrents')
-            }
-        },
-        data () {
-            return {
-                name: "",
-                password: "",
-                error: null
-            }
-        },
-        methods: {
-            connect: function (event) {
-                event.preventDefault()
-                var name = this.get('name')
-                var password = this.get('password')
-                if (!name || !password) {
-                    this.set({ error: 'You must provide a name and a password.' })
-                } else {
-                    window.app.api.post('/auth', {
-                        name: name,
-                        password: password
-                    }).then(function (response) {
-                        window.app.api.setApiKey(response.data.key)
-                        window.app.router.go('torrents')
-                    }).catch(function (error) {
-                        this.set({ error: error })
-                    }.bind(this))
-                }
-            }
+      onrender () {
+        if (app.api.isConnected()) {
+          window.app.router.go('torrents')
         }
+        window.app.api.post('/auth/auto', {}).then(function (response) {
+          window.app.api.setApiKey(response.data.key)
+          window.app.router.go('torrents')
+        }).catch(function (error) {
+          this.set({ error: error })
+        }.bind(this))
+      },
+      data () {
+        return {
+          name: '',
+          password: '',
+          error: null
+        }
+      },
+      methods: {
+        connect: function (event) {
+          event.preventDefault()
+          var name = this.get('name')
+          var password = this.get('password')
+          if (!name || !password) {
+            this.set({ error: 'You must provide a name and a password.' })
+          } else {
+            window.app.api.post('/auth', {
+              name: name,
+              password: password
+            }).then(function (response) {
+              window.app.api.setApiKey(response.data.key)
+              window.app.router.go('torrents')
+            }).catch(function (error) {
+              this.set({ error: error })
+            }.bind(this))
+          }
+        }
+      }
     }
 </script>

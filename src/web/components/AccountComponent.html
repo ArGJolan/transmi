@@ -32,78 +32,78 @@
 
 <script>
     export default {
-        onrender () {
-            this.getT411Profile()
-        },
-        data () {
-            return {
-                errorPassword: null,
-                password: "",
-                errorT411: null,
-                t411Username: "",
-                t411Password: "",
-                t411_profile: null,
-            }
-        },
-        helpers: {
-        },
-        components: {
-            HeaderComponent
-        },
-        methods: {
-            editPassword: function () {
-                var password = this.get('password')
-                if (!password) {
-                    this.set({ errorPassword: 'You must provide a password.' })
-                } else {
-                    window.app.api.put('/user', {
-                        password: password
-                    }).then(function (response) {
-                        window.app.router.go('torrents')
-                    }).catch(function (error) {
-                        this.set({ errorPassword: error })
-                    }.bind(this))
-                }
-            },
-            logout: function () {
-                window.app.api.delete('/auth').then(function (response) {
-                    window.app.api.setApiKey(null)
-                    window.app.router.go('auth')
-                }).catch(function (error) {
-                    this.set({ errorPassword: error })
-                }.bind(this))
-            },
-            updateT411Profile: function () {
-                return window.app.api.get('/t411/profile/refresh').then(function (response) {
-                    this.set({ t411_profile: response.data, errorT411: null })
-                    console.log("success", response)
-                }.bind(this))
-            },
-            getT411Profile: function () {
-                window.app.api.get('/t411/profile').then(function (response) {
-                    this.set({ t411_profile: response.data })
-                }.bind(this)).catch(function (error) {
-                    console.log(error)
-                }.bind(this))
-            },
-            t411Login: function () {
-                window.app.api.post('/t411/auth', {
-                    username: this.get('t411Username'),
-                    password: this.get('t411Password')
-                }).then(function (response) {
-                    return this.updateT411Profile()
-                }.bind(this)).catch(function (error) {
-                    this.set({ t411_profile: null, errorT411: error })
-                }.bind(this))
-            },
-            t411Logout: function () {
-                window.app.api.delete('/t411/auth', {
-                }).then(function (response) {
-                    return this.updateT411Profile()
-                }.bind(this)).catch(function (error) {
-                    this.set({ t411_profile: null, errorT411: error })
-                }.bind(this))
-            }
+      onrender () {
+        this.getT411Profile()
+      },
+      data () {
+        return {
+          errorPassword: null,
+          password: '',
+          errorT411: null,
+          t411Username: '',
+          t411Password: '',
+          t411_profile: null
         }
+      },
+      helpers: {
+      },
+      components: {
+        HeaderComponent
+      },
+      methods: {
+        editPassword: function () {
+          var password = this.get('password')
+          if (!password) {
+            this.set({ errorPassword: 'You must provide a password.' })
+          } else {
+            window.app.api.put('/user', {
+              password: password
+            }).then(function (response) {
+              window.app.router.go('torrents')
+            }).catch(function (error) {
+              this.set({ errorPassword: error })
+            }.bind(this))
+          }
+        },
+        logout: function () {
+          window.app.api.delete('/auth').then(function (response) {
+            window.app.api.setApiKey(null)
+            window.app.router.go('auth')
+          }).catch(function (error) {
+            this.set({ errorPassword: error })
+          }.bind(this))
+        },
+        updateT411Profile: function () {
+          return window.app.api.get('/t411/profile/refresh').then(function (response) {
+            this.set({ t411_profile: response.data, errorT411: null })
+            console.log('success', response)
+          }.bind(this))
+        },
+        getT411Profile: function () {
+          window.app.api.get('/t411/profile').then(function (response) {
+            this.set({ t411_profile: response.data })
+          }.bind(this)).catch(function (error) {
+            console.log(error)
+          })
+        },
+        t411Login: function () {
+          window.app.api.post('/t411/auth', {
+            username: this.get('t411Username'),
+            password: this.get('t411Password')
+          }).then(function (response) {
+            return this.updateT411Profile()
+          }.bind(this)).catch(function (error) {
+            this.set({ t411_profile: null, errorT411: error })
+          }.bind(this))
+        },
+        t411Logout: function () {
+          window.app.api.delete('/t411/auth', {
+          }).then(function (response) {
+            return this.updateT411Profile()
+          }.bind(this)).catch(function (error) {
+            this.set({ t411_profile: null, errorT411: error })
+          }.bind(this))
+        }
+      }
     }
 </script>

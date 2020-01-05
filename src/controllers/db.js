@@ -1,5 +1,5 @@
-const database = require('../database')
+const Database = require('../database')
 
-let db = new database('db/db-data.json')
+const db = new Database('db/db-data.json')
 
 module.exports = db

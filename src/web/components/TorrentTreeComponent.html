@@ -20,43 +20,43 @@
 
 <script>
     export default {
-        onrender () {
-            console.log('tree', this.get('tree'))
-        },
-        data () {
-            return {
-                baseUrl: window.location.origin
-            }
-        },
-        helpers: {
-            formatSize: window.GenericHelpers.formatSize,
-            isVlcMedia: function (item) {
-                var itemExtension = item.name.split(".").pop().toLowerCase();
-                return (["avi", "flv", "mkv", "mp4", "wav"].indexOf(itemExtension) != -1);
-            },
-            isIOSPlatform: function() {
-                return  !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
-            }
-        },
-        components: {
-            TorrentTreeComponent
-        },
-        methods: {
-            editIsOpened: function (item, value) {
-                var tree = this.get('tree')
-                for (var i = 0; i < tree.length; i++) {
-                    if (tree[i] === item) {
-                        tree[i].isOpened = value
-                    }
-                }
-                this.set({ tree: tree })
-            },
-            open: function (item) {
-                this.editIsOpened(item, true)
-            },
-            close: function (item) {
-                this.editIsOpened(item, false)
-            }
+      onrender () {
+        console.log('tree', this.get('tree'))
+      },
+      data () {
+        return {
+          baseUrl: window.location.origin
         }
+      },
+      helpers: {
+        formatSize: window.GenericHelpers.formatSize,
+        isVlcMedia: function (item) {
+          var itemExtension = item.name.split('.').pop().toLowerCase()
+          return (['avi', 'flv', 'mkv', 'mp4', 'wav'].indexOf(itemExtension) != -1)
+        },
+        isIOSPlatform: function () {
+          return !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)
+        }
+      },
+      components: {
+        TorrentTreeComponent
+      },
+      methods: {
+        editIsOpened: function (item, value) {
+          var tree = this.get('tree')
+          for (var i = 0; i < tree.length; i++) {
+            if (tree[i] === item) {
+              tree[i].isOpened = value
+            }
+          }
+          this.set({ tree: tree })
+        },
+        open: function (item) {
+          this.editIsOpened(item, true)
+        },
+        close: function (item) {
+          this.editIsOpened(item, false)
+        }
+      }
     }
 </script>

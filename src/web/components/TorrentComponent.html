@@ -100,164 +100,164 @@
 
 <script>
     export default {
-        onrender () {
-            this.updateInfos()
-        },
-        onteardown () {
-            if (this.timeout) {
-                clearTimeout(this.timeout)
-                this.timeout = null
-            }
-        },
-        data () {
-            return {
-                showInformation: false,
-                error: null,
-                torrent: {}
-            }
-        },
-        helpers: {
-            formatStatus: window.GenericHelpers.formatTorrentStatus,
-            formatSize: window.GenericHelpers.formatSize,
-            formatDate: window.GenericHelpers.formatDate,
-            formatDuration: window.GenericHelpers.formatDuration
-        },
-        components: {
-            HeaderComponent,
-            LoadingComponent,
-            TorrentTreeComponent
-        },
-        methods: {
-            openTorrent: function (torrentId) {
-                window.app.router.go('torrent', { torrentId: torrentId })
-            },
-            updateInfos: function () {
-                this.timeout = null
-                var torrentId = this.get('torrentId')
-                window.app.api.get('/torrents/' + torrentId).then(function (response) {
-                    response.data.percentDone = Math.round(response.data.percentDone * 100) / 100
-
-                    if (response.data.files && response.data.customData && response.data.customData.downloadPath) {
-                        var tree = {
-                            type: 'root',
-                            childs: {}
-                        }
-                        for (var i = 0; i < response.data.files.length; i++) {
-                            var parts = response.data.files[i].name.split('/')
-                            var instance = tree.childs
-                            for (var j = 0; j < parts.length - 1; j++) {
-                                if (!instance[parts[j]]) {
-                                    instance[parts[j]] = {
-                                        type: 'dir',
-                                        isOpened: j === 0,
-                                        childs: {}
-                                    }
-                                }
-                                instance = instance[parts[j]].childs
-                            }
-                            if (parts.length) {
-                                instance[parts[parts.length - 1]] = {
-                                    type: 'file',
-                                    url: '/download/' + response.data.customData.downloadPath + '/' + response.data.files[i].name,
-                                    completed: response.data.files[i].bytesCompleted,
-                                    total: response.data.files[i].length
-                                }
-                            }
-                        }
-
-                        var treeToArrays = function (item, name) {
-                            if (item.type === 'file' && name) {
-                                item.name = name
-                                return item
-                            }
-
-                            var items = []
-                            var keys = Object.keys(item.childs)
-                            for (var i = 0; i < keys.length; i++) {
-                                items.push(treeToArrays(item.childs[keys[i]], keys[i]))
-                            }
-
-                            if (item.type === 'dir') {
-                                item.name = name
-                                item.childs = items
-                                return item
-                            }
-
-                            return items
-                        }
-
-                        response.data.files = treeToArrays(tree)
-                    }
-
-                    console.log('torrent details', response.data)
-                    this.set({ torrent: response.data })
-
-                    if (response.data.status >= 1 && response.data.status <= 4 || response.data.customData && response.data.customData.zipProcessing) {
-                        this.setRefreshTimeout()
-                    }
-                }.bind(this)).catch(function (error) {
-                    console.error(error)
-                    this.set({ error: error })
-                    if (error === 'Torrent not found') {
-                        window.app.router.go('torrents')
-                    }
-                }.bind(this))
-            },
-            setRefreshTimeout: function (millisecs) {
-                if (!this.timeout) {
-                    this.timeout = setTimeout(this.updateInfos.bind(this), millisecs || 1000)
-                }
-            },
-            resumeTorrent: function () {
-                window.app.api.put('/torrents/' + this.get('torrentId') + '/resume').then(function (res) {
-                    console.log('resume res', res)
-                    this.updateInfos()
-                    this.setRefreshTimeout()
-                }.bind(this)).catch(function (error) {
-                    console.error(error)
-                    this.set({ error: error })
-                }.bind(this))
-            },
-            forceResumeTorrent: function () {
-                window.app.api.put('/torrents/' + this.get('torrentId') + '/force_resume').then(function (res) {
-                    console.log('force_resume res', res)
-                    this.updateInfos()
-                    this.setRefreshTimeout()
-                }.bind(this)).catch(function (error) {
-                    console.error(error)
-                    this.set({ error: error })
-                }.bind(this))
-            },
-            pauseTorrent: function () {
-                window.app.api.put('/torrents/' + this.get('torrentId') + '/pause').then(function (res) {
-                    console.log('pause res', res)
-                    this.updateInfos()
-                    this.setRefreshTimeout()
-                }.bind(this)).catch(function (error) {
-                    console.error(error)
-                    this.set({ error: error })
-                }.bind(this))
-            },
-            deleteTorrent: function () {
-                window.app.api.delete('/torrents/' + this.get('torrentId')).then(function (res) {
-                    console.log('delete res', res)
-                    this.updateInfos()
-                    this.setRefreshTimeout()
-                }.bind(this)).catch(function (error) {
-                    console.error(error)
-                    this.set({ error: error })
-                }.bind(this))
-            },
-            zipTorrent: function () {
-                window.app.api.post('/torrents/' + this.get('torrentId') + '/zip').then(function (res) {
-                    console.log('zip res', res)
-                    this.updateInfos()
-                    this.setRefreshTimeout()
-                }.bind(this)).catch(function (error) {
-                    console.error(error)
-                    this.set({ error: error })
-                }.bind(this))
-            }
+      onrender () {
+        this.updateInfos()
+      },
+      onteardown () {
+        if (this.timeout) {
+          clearTimeout(this.timeout)
+          this.timeout = null
         }
+      },
+      data () {
+        return {
+          showInformation: false,
+          error: null,
+          torrent: {}
+        }
+      },
+      helpers: {
+        formatStatus: window.GenericHelpers.formatTorrentStatus,
+        formatSize: window.GenericHelpers.formatSize,
+        formatDate: window.GenericHelpers.formatDate,
+        formatDuration: window.GenericHelpers.formatDuration
+      },
+      components: {
+        HeaderComponent,
+        LoadingComponent,
+        TorrentTreeComponent
+      },
+      methods: {
+        openTorrent: function (torrentId) {
+          window.app.router.go('torrent', { torrentId: torrentId })
+        },
+        updateInfos: function () {
+          this.timeout = null
+          var torrentId = this.get('torrentId')
+          window.app.api.get('/torrents/' + torrentId).then(function (response) {
+            response.data.percentDone = Math.round(response.data.percentDone * 100) / 100
+
+            if (response.data.files && response.data.customData && response.data.customData.downloadPath) {
+              var tree = {
+                type: 'root',
+                childs: {}
+              }
+              for (var i = 0; i < response.data.files.length; i++) {
+                var parts = response.data.files[i].name.split('/')
+                var instance = tree.childs
+                for (var j = 0; j < parts.length - 1; j++) {
+                  if (!instance[parts[j]]) {
+                    instance[parts[j]] = {
+                      type: 'dir',
+                      isOpened: j === 0,
+                      childs: {}
+                    }
+                  }
+                  instance = instance[parts[j]].childs
+                }
+                if (parts.length) {
+                  instance[parts[parts.length - 1]] = {
+                    type: 'file',
+                    url: '/download/' + response.data.customData.downloadPath + '/' + response.data.files[i].name,
+                    completed: response.data.files[i].bytesCompleted,
+                    total: response.data.files[i].length
+                  }
+                }
+              }
+
+              var treeToArrays = function (item, name) {
+                if (item.type === 'file' && name) {
+                  item.name = name
+                  return item
+                }
+
+                var items = []
+                var keys = Object.keys(item.childs)
+                for (var i = 0; i < keys.length; i++) {
+                  items.push(treeToArrays(item.childs[keys[i]], keys[i]))
+                }
+
+                if (item.type === 'dir') {
+                  item.name = name
+                  item.childs = items
+                  return item
+                }
+
+                return items
+              }
+
+              response.data.files = treeToArrays(tree)
+            }
+
+            console.log('torrent details', response.data)
+            this.set({ torrent: response.data })
+
+            if (response.data.status >= 1 && response.data.status <= 4 || response.data.customData && response.data.customData.zipProcessing) {
+              this.setRefreshTimeout()
+            }
+          }.bind(this)).catch(function (error) {
+            console.error(error)
+            this.set({ error: error })
+            if (error === 'Torrent not found') {
+              window.app.router.go('torrents')
+            }
+          }.bind(this))
+        },
+        setRefreshTimeout: function (millisecs) {
+          if (!this.timeout) {
+            this.timeout = setTimeout(this.updateInfos.bind(this), millisecs || 1000)
+          }
+        },
+        resumeTorrent: function () {
+          window.app.api.put('/torrents/' + this.get('torrentId') + '/resume').then(function (res) {
+            console.log('resume res', res)
+            this.updateInfos()
+            this.setRefreshTimeout()
+          }.bind(this)).catch(function (error) {
+            console.error(error)
+            this.set({ error: error })
+          }.bind(this))
+        },
+        forceResumeTorrent: function () {
+          window.app.api.put('/torrents/' + this.get('torrentId') + '/force_resume').then(function (res) {
+            console.log('force_resume res', res)
+            this.updateInfos()
+            this.setRefreshTimeout()
+          }.bind(this)).catch(function (error) {
+            console.error(error)
+            this.set({ error: error })
+          }.bind(this))
+        },
+        pauseTorrent: function () {
+          window.app.api.put('/torrents/' + this.get('torrentId') + '/pause').then(function (res) {
+            console.log('pause res', res)
+            this.updateInfos()
+            this.setRefreshTimeout()
+          }.bind(this)).catch(function (error) {
+            console.error(error)
+            this.set({ error: error })
+          }.bind(this))
+        },
+        deleteTorrent: function () {
+          window.app.api.delete('/torrents/' + this.get('torrentId')).then(function (res) {
+            console.log('delete res', res)
+            this.updateInfos()
+            this.setRefreshTimeout()
+          }.bind(this)).catch(function (error) {
+            console.error(error)
+            this.set({ error: error })
+          }.bind(this))
+        },
+        zipTorrent: function () {
+          window.app.api.post('/torrents/' + this.get('torrentId') + '/zip').then(function (res) {
+            console.log('zip res', res)
+            this.updateInfos()
+            this.setRefreshTimeout()
+          }.bind(this)).catch(function (error) {
+            console.error(error)
+            this.set({ error: error })
+          }.bind(this))
+        }
+      }
     }
 </script>

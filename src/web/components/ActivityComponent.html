@@ -42,48 +42,48 @@
 
 <script>
     export default {
-        onrender () {
-            window.app.api.get('/torrents/activity').then(function (response) {
-                console.log(response)
-                var seenTorrents = JSON.parse(localStorage.getItem('seen_torrents')) || []
-                var displayedUsers = JSON.parse(localStorage.getItem('displayed_users')) || {}
-                for (var i in response.data.users) {
-                    var user = response.data.users[i]
-                    for (var j in user.torrents) {
-                        var torrent = user.torrents[j]
-                        torrent.isNew = !seenTorrents.includes(torrent.id)
-                    }
-                    user.containsNew = user.torrents.reduce(function(a, b) { return a || b.isNew }, false)
-                    user.isClosed = displayedUsers[user.name]
-                }
-                seenTorrents = response.data.users.reduce(function(a, b) { return a.concat(b.torrents) }, []).map(function(x) { return x.id })
-                localStorage.setItem('seen_torrents', JSON.stringify(seenTorrents))
-                this.set({ all: response.data.all, users: response.data.users })
-            }.bind(this)).catch(function (error) {
-                console.error(error)
-            }.bind(this))
-        },
-        data () {
-            return {
-                all: null,
-                users: []
+      onrender () {
+        window.app.api.get('/torrents/activity').then(function (response) {
+          console.log(response)
+          var seenTorrents = JSON.parse(localStorage.getItem('seen_torrents')) || []
+          var displayedUsers = JSON.parse(localStorage.getItem('displayed_users')) || {}
+          for (var i in response.data.users) {
+            var user = response.data.users[i]
+            for (var j in user.torrents) {
+              var torrent = user.torrents[j]
+              torrent.isNew = !seenTorrents.includes(torrent.id)
             }
-        },
-        components: {
-            HeaderComponent,
-            LoadingComponent
-        },
-        helpers: {
-            formatSize: window.GenericHelpers.formatSize
-        },
-        methods: {
-            toggleOpening: function (user) {
-                var displayedUsers = JSON.parse(localStorage.getItem('displayed_users')) || {}
-                user.isClosed = displayedUsers[user.name] === true ? false : true
-                displayedUsers[user.name] = user.isClosed
-                localStorage.setItem('displayed_users', JSON.stringify(displayedUsers))
-                this.set({ users: this.get('users') })
-            }
+            user.containsNew = user.torrents.reduce(function (a, b) { return a || b.isNew }, false)
+            user.isClosed = displayedUsers[user.name]
+          }
+          seenTorrents = response.data.users.reduce(function (a, b) { return a.concat(b.torrents) }, []).map(function (x) { return x.id })
+          localStorage.setItem('seen_torrents', JSON.stringify(seenTorrents))
+          this.set({ all: response.data.all, users: response.data.users })
+        }.bind(this)).catch(function (error) {
+          console.error(error)
+        })
+      },
+      data () {
+        return {
+          all: null,
+          users: []
         }
+      },
+      components: {
+        HeaderComponent,
+        LoadingComponent
+      },
+      helpers: {
+        formatSize: window.GenericHelpers.formatSize
+      },
+      methods: {
+        toggleOpening: function (user) {
+          var displayedUsers = JSON.parse(localStorage.getItem('displayed_users')) || {}
+          user.isClosed = displayedUsers[user.name] !== true
+          displayedUsers[user.name] = user.isClosed
+          localStorage.setItem('displayed_users', JSON.stringify(displayedUsers))
+          this.set({ users: this.get('users') })
+        }
+      }
     }
 </script>
