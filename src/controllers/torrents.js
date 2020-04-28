@@ -183,6 +183,7 @@ const torrentRouter = () => {
         }
         user.customData[+arg.id] = { downloadPath: path }
         user.ids.push(+arg.id)
+        user.ids = user.ids.filter((item, index) => user.ids.indexOf(item) === index)
         db.set(req.user, user)
         res.json(arg.torrents)
       }
@@ -220,6 +221,7 @@ const torrentRouter = () => {
                 user.ids.splice(user.ids.indexOf(+req.params.id), 1)
               }
               delete user.customData[+req.params.id]
+              user.ids = user.ids.filter((item, index) => user.ids.indexOf(item) === index)
               db.set(req.user, user)
             }
             res.json({})
