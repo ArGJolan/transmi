@@ -47,6 +47,15 @@ jobs:
             docker push $BUILD_TAG
             docker push $COMMIT_TAG
             docker push $BRANCH_TAG
+      - run:
+          name: Deploy Webhook
+          command: |
+            curl -H "Content-Type: application/json" -X POST -d "{\"content\": \":white_check_mark: \`${CIRCLE_PROJECT_REPONAME}\` deployed with the following tags \`latest\` \`circle-$CIRCLE_BUILD_NUM\` \`$(git rev-parse --short HEAD)\` \`${CIRCLE_BRANCH}\`\"}" $DISCORD_WEBHOOK
+      - run:
+          name: Close Github's status before the end
+          when: on_fail
+          command: |
+            curl -H "Content-Type: application/json" -X POST -d "{\"content\": \":wargning: \`${CIRCLE_PROJECT_REPONAME}\` CI Failed\"}" $DISCORD_WEBHOOK
 
 workflows:
   version: 2
